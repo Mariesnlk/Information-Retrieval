@@ -1,0 +1,55 @@
+import java.util.Arrays;
+import java.util.Objects;
+
+public class Dictionary {
+    private String[] dictionaryWords;
+    private int wordsCount = 0;
+
+    public Dictionary() {
+        this.dictionaryWords = new String[1];
+    }
+    public void add(String[] words) {
+        for (String word : words) {
+            addWordToTheDictionary(word);
+        }
+    }
+
+    public int size() {
+        return dictionaryWords.length;
+    }
+
+    public void addWordToTheDictionary(String word) {
+        Objects.requireNonNull(word, "Not null");
+        word = word.toLowerCase();
+        if (checkIfTheWordIsNew(word)) {
+            dictionaryWords[wordsCount++] = word;
+            Arrays.sort(dictionaryWords, 0, wordsCount);
+            if (dictionaryWords.length == wordsCount) {
+                resizeArray();
+            }
+        }
+    }
+    private boolean checkIfTheWordIsNew(String word) {
+        return (wordsCount == 0) || Arrays.binarySearch(dictionaryWords, 0, wordsCount, word) < 0;
+    }
+
+    private void resizeArray() {
+        String[] newDictionary = new String[dictionaryWords.length * 2];
+        System.arraycopy(dictionaryWords, 0, newDictionary, 0, dictionaryWords.length);
+        dictionaryWords = newDictionary;
+    }
+
+    public boolean checkIfTheWordIsExist(String word) {
+        word = word.toLowerCase();
+        return Arrays.binarySearch(dictionaryWords, 0, wordsCount, word) >= 0;
+    }
+
+    public int getWordsCount() {
+        return wordsCount;
+    }
+
+    public String[] getDictionaryWords() {
+        return dictionaryWords;
+    }
+}
+
