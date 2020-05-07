@@ -1,0 +1,88 @@
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Scanner;
+
+
+public class ZoneWeightTester {
+
+    private List<File> files;
+    private BSBI bsbi;
+    private static final String BOOK_PATH = "C://SYNE//Information Retrieval//";
+
+    public static final List<File> FILES = Arrays.asList(new File(BOOK_PATH + "Game of Thrones .fb2"),
+            new File(BOOK_PATH + "Dracula.fb2"), new File(BOOK_PATH + "Emma.fb2"),
+            new File(BOOK_PATH + "Pride_and_Prejudice.fb2"), new File(BOOK_PATH + "The Jungle Book.fb2")
+    );
+
+    private ZoneWeightTester(List<File> files) {
+        this.files = files;
+        this.bsbi = new BSBI((File[]) files.toArray());
+    }
+
+
+    public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, NullPointerException {
+        ZoneWeightTester zoneWeightTester = new ZoneWeightTester(FILES);
+
+        int toContinue = 0;
+        Scanner stringScanner = new Scanner(System.in);
+        Scanner intScanner = new Scanner(System.in);
+        String query;
+        do {
+            System.out.println("Add word: ");
+            query = stringScanner.nextLine();
+
+            List<PostingWeightZone> result = zoneWeightTester.findDocuments(query);
+
+            for (PostingWeightZone newResult : result) {
+                System.out.println("Document id: " + newResult.getId() + ", weight = " + newResult.getWeight());
+            }
+            System.out.println("Would you like to continue? 1 - yes 0 - no");
+            toContinue = intScanner.nextInt();
+        } while (toContinue != 0);
+    }
+
+    private List<PostingWeightZone> findDocuments(String word) throws IOException, ParserConfigurationException, SAXException {
+
+        String searchWord = word.toLowerCase();
+        List<PostingWeightZone> result = new LinkedList<>();
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(BOOK_PATH + "BSBI_Index.txt"));
+        String line;
+        while ((line = bufferedReader.readLine()) != null) {
+            String[] split = line.split(":");
+            if (bsbi.getBsbiIndex().getTermList().get(searchWord) != null && bsbi.getBsbiIndex().getTermList().get(searchWord) == Integer.parseInt(split[0])) {
+                String[] docs = split[1].split(",");
+                for (int i = 0; i < docs.length; i++) {
+                    Parser parser = new Parser(files.get(i).getPath());
+                    PostingWeightZone resultDocument = new PostingWeightZone(Integer.parseInt(docs[i]), PostingWeightZone.ZoneScores.BODY);
+
+                    String[] Author = parser.getAuthor().split(" ");
+                    for (String author : Author) {
+                        if (author.toLowerCase().equals(word)) {
+                            resultDocument.addZone(PostingWeightZone.ZoneScores.AUTHOR);
+                        }
+                    }
+                    result.add(resultDocument);
+
+                    String[] Title = parser.getTitle().split(" ");
+                    for (String title : Title) {
+                        if (title.toLowerCase().equals(word)) {
+                            resultDocument.addZone(PostingWeightZone.ZoneScores.TITLE);
+                        }
+                    }
+
+                }
+
+            }
+        }
+        return result;
+    }
+}
