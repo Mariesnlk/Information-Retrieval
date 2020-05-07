@@ -1,0 +1,42 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+public class JokerRequestTester {
+
+    private static final String BOOK_PATH = "C://SYNE//Information Retrieval//";
+    public static void main(String[] args) {
+
+        SuffixTree suffixTree = SufixTreeBuilder.createSuffixTree(Arrays.asList(BOOK_PATH + "Game of Thrones .fb2",
+                BOOK_PATH + "Game of Thrones .fb2", BOOK_PATH + "Emma.fb2", BOOK_PATH + "The Jungle Book.fb2",
+                BOOK_PATH + "Dracula.fb2", BOOK_PATH + "Pride_and_Prejudice.fb2",
+                BOOK_PATH + "The_Picture_of_Dorian_Gray.fb2",
+                BOOK_PATH + "The-Iliad.fb2", BOOK_PATH + "The-Unveiling.fb2", BOOK_PATH + "Collected-Works-of-Poe.fb2"));
+        PrefixTree prefixTree = PrefixTreeBuilder.prefixBuilder(Arrays.asList(BOOK_PATH + "Game of Thrones .fb2",
+                BOOK_PATH + "Game of Thrones .fb2", BOOK_PATH + "Emma.fb2", BOOK_PATH + "The Jungle Book.fb2",
+                BOOK_PATH + "Dracula.fb2", BOOK_PATH + "Pride_and_Prejudice.fb2",
+                BOOK_PATH + "The_Picture_of_Dorian_Gray.fb2",
+                BOOK_PATH + "The-Iliad.fb2", BOOK_PATH + "The-Unveiling.fb2", BOOK_PATH + "Collected-Works-of-Poe.fb2"));
+
+        WildCard wildCard = WildCardBuilder.createCollection(Arrays.asList(BOOK_PATH + "Game of Thrones .fb2",
+                BOOK_PATH + "Game of Thrones .fb2", BOOK_PATH + "Emma.fb2", BOOK_PATH + "The Jungle Book.fb2",
+                BOOK_PATH + "Dracula.fb2", BOOK_PATH + "Pride_and_Prejudice.fb2",
+                BOOK_PATH + "The_Picture_of_Dorian_Gray.fb2",
+                BOOK_PATH + "The-Iliad.fb2", BOOK_PATH + "The-Unveiling.fb2", BOOK_PATH + "Collected-Works-of-Poe.fb2"));
+
+        JokerRequest wildCardQuery = new JokerRequest(prefixTree, suffixTree, wildCard);
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("C://SYNE//Information Retrieval//JokerResult.txt"))) {
+
+            List<String> result = wildCardQuery.doneRequest("lo*e");
+            //List<String> result = wildCardQuery.doneRequest("*th");
+           // List<String> result = wildCardQuery.doneRequest("am*");
+            writer.write(String.valueOf(result));
+            System.out.println(result);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
